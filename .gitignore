@@ -1,0 +1,21 @@
+# Archived previous implementation
+Old-Version/
+
+# Node.js
+node_modules/
+dist/
+dist-electron/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+
+# Tooling and generated files
+output.md
+graphify-out/
+workspace-*/
+.DS_Store
