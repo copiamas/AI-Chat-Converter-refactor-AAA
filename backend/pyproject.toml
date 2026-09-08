@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-converter-cli"
+version = "1.0.0"
+description = "CLI para converter páginas HTML de conversas com IA (Google Modo IA / ChatGPT) em Markdown limpo."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "AI Converter CLI Team" }]
+keywords = ["markdown", "html", "chatgpt", "google-ai", "converter", "cli"]
+dependencies = [
+    "beautifulsoup4>=4.12",
+    "rich>=13.7",
+]
+
+[project.scripts]
+ai-converter = "ai_converter_cli.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-beautifulsoup4>=4.12",
+]
+
+[tool.setuptools]
+packages = ["ai_converter_cli"]
+
+[tool.setuptools.package-data]
+ai_converter_cli = ["py.typed"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = ["ai_converter_cli", "tests"]
+extend-exclude = ["tests/fixtures/*"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "C4", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixtures HTML longos são legítimos dentro de strings de teste.
+"tests/**" = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+show_error_codes = true
+packages = ["ai_converter_cli"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["cli: testes da camada de interface de linha de comando"]
+
+[tool.coverage.run]
+branch = true
+source = ["ai_converter_cli"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]

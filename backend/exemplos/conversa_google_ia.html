@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Conversa — Google Modo IA</title>
+    <script>
+        window.inicializacao = function () { return true; };
+    </script>
+    <style>
+        .layout { display: flex; }
+    </style>
+</head>
+<body>
+    <header class="topo">
+        <nav>
+            <a href="/">Início</a>
+            <a href="/contato">Contato</a>
+        </nav>
+    </header>
+
+    <main class="layout">
+        <div class="conversa">
+            <h2>Conversa com o Modo IA do Google</h2>
+
+            <p>explique isso: como funciona o protocolo HTTPS em uma frase simples?</p>
+            <div class="feedback-buttons">
+                <button>Copiar</button>
+                <button>Compartilhar link público</button>
+            </div>
+
+            <p>Ah, sensacional! O HTTPS é uma camada de segurança que <strong>criptografa</strong> os dados
+            entre o seu navegador e o servidor, como um envelope lacrado: mesmo que alguém intercepte o
+            pacote, não consegue ler o conteúdo.</p>
+            <ul>
+                <li>Confidencialidade: ninguém lê os dados no caminho.</li>
+                <li>Integridade: o conteúdo não pode ser alterado sem detecção.</li>
+                <li>Autenticação: você confirma que fala com o servidor certo.</li>
+            </ul>
+            <p>Na prática, o navegador e o servidor trocam chaves e usam o <code>TLS</code> para proteger
+            cada requisição. Veja mais em <a href="https://developer.mozilla.org/pt-BR/docs/Web/HTTP" title="Documentação MDN">MDN Web Docs</a>.</p>
+
+            <p>contexto da pergunta: por que o cadeado aparece no navegador?</p>
+            <div class="action-buttons">
+                <button>Boa resposta</button>
+                <button>Resposta ruim</button>
+            </div>
+
+            <p>Essa questão lista: o cadeado indica que a conexão usa HTTPS com um certificado válido,
+            emitido por uma autoridade certificadora reconhecida. É o sinal visual de que a camada de
+            criptografia está ativa.</p>
+            <p>A IA pode cometer erros. Por isso, cheque as respostas</p>
+            <p>Este link público é válido por 7 dias e compartilha uma conversa, incluindo as informações pessoais que você adicionou.</p>
+        </div>
+    </main>
+
+    <footer>
+        <a href="/privacidade">Privacidade</a>
+        <a href="/termos">Termos</a>
+    </footer>
+</body>
+</html>
