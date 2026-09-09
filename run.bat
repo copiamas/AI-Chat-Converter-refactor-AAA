@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 :: ============================================================
 :: AI Chat Converter - Electron Desktop App
 :: ============================================================
-:: Uso: run.bat [dev|build|electron|python-test|install|clean|help]
+:: Uso: run.bat [dev|build|electron|cli|python-test|install|clean|help]
 
 title AI Chat Converter - Electron
 
@@ -25,6 +25,7 @@ set PROJECT_ROOT=%~dp0
 if "%~1"=="dev" goto dev
 if "%~1"=="build" goto build
 if "%~1"=="electron" goto electron
+if "%~1"=="cli" goto cli
 if "%~1"=="python-test" goto python_test
 if "%~1"=="install" goto install
 if "%~1"=="clean" goto clean
@@ -41,14 +42,14 @@ cls
 echo ================================================================
 echo  AI Chat Converter / Electron - React UI + Python Engine
 echo ================================================================
-echo [1] Dev Server  [2] Build  [3] Electron  [4] Python Test
+echo [1] Dev Server  [2] Build  [3] Electron  [4] Cli
 echo [5] Install    [6] Clean  [7] Help     [0] Sair
 echo ================================================================
 set /p c=Opcao:
 if "%c%"=="1" goto dev
 if "%c%"=="2" goto build
 if "%c%"=="3" goto electron
-if "%c%"=="4" goto python_test
+if "%c%"=="4" goto cli
 if "%c%"=="5" goto install
 if "%c%"=="6" goto clean
 if "%c%"=="7" goto help
@@ -100,8 +101,16 @@ if exist "exemplos" (echo [TESTE] Testando com exemplos... && %PYTHON% -m ai_con
 pause
 goto menu
 
+:cli
+cd /d %PROJECT_ROOT%backend
+echo [CLI] AI Chat Converter CLI
+%PYTHON% -m ai_converter_cli.cli
+pause
+goto menu
+
 :install
 cd /d %PROJECT_ROOT%frontend && call %PKG_MANAGER% install
+cd /d %PROJECT_ROOT%frontend && call %PKG_MANAGER% rebuild electron
 echo [INSTALL] Dependencias Node instaladas.
 cd /d %PROJECT_ROOT%backend && %PYTHON% -m pip install -e ".[dev]" -q 2>nul || %PYTHON% -m pip install -e "." -q 2>nul
 echo [INSTALL] Python backend instalado.
@@ -117,15 +126,17 @@ goto menu
 :help
 cls
 echo  AI Chat Converter / Electron
-echo  Uso: run.bat [dev|build|electron|python-test|install|clean|help]
+echo  Uso: run.bat [dev^|build^|electron^|cli^|python-test^|install^|clean^|help]
 echo  dev         - Servidor de desenvolvimento
 echo  build       - Build de producao
 echo  electron     - App desktop (Electron + Python)
+echo  cli          - Abre a CLI interativa de conversao
 echo  python-test - Testa CLI Python
 echo  install      - Instala dependencias
 echo  clean       - Limpa node_modules
 echo  help        - Mostra esta ajuda
 pause
+if not "%~1"=="" exit /b 0
 goto menu
 
 :exit
