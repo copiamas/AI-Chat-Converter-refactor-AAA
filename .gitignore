@@ -19,3 +19,5 @@ output.md
 graphify-out/
 workspace-*/
 .DS_Store
+# gitignore
+.gitignore

@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "electron": "electron .",
     "electron:build": "npx esbuild src/electron/main.ts --bundle --platform=node --outfile=dist-electron/main.cjs --format=cjs --external:electron && npx esbuild src/electron/preload.ts --bundle --platform=node --outfile=dist-electron/preload.cjs --format=cjs --external:electron"
+    ,"verify:build": "tsc --noEmit && tsc -p src/electron/tsconfig.json --noEmit && vite build && npm run electron:build && node -e \"console.log('READER_BUILD_VERIFIED')\""
+    ,"test:reader": "playwright test && node -e \"console.log('READER_E2E_VERIFIED')\""
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -28,5 +30,6 @@
     "typescript": "5.9.3",
     "vite": "7.3.2",
     "vite-plugin-singlefile": "2.3.0"
+    ,"@playwright/test": "^1.55.0"
   }
 }

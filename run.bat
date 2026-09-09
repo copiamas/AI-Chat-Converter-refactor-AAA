@@ -102,6 +102,7 @@ goto menu
 
 :install
 cd /d %PROJECT_ROOT%frontend && call %PKG_MANAGER% install
+cd /d %PROJECT_ROOT%frontend && call %PKG_MANAGER% rebuild electron
 echo [INSTALL] Dependencias Node instaladas.
 cd /d %PROJECT_ROOT%backend && %PYTHON% -m pip install -e ".[dev]" -q 2>nul || %PYTHON% -m pip install -e "." -q 2>nul
 echo [INSTALL] Python backend instalado.
