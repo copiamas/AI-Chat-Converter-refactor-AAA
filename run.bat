@@ -102,10 +102,20 @@ pause
 goto menu
 
 :cli
-cd /d %PROJECT_ROOT%backend
 echo [CLI] AI Chat Converter CLI
-%PYTHON% -m ai_converter_cli.cli
+set CLI_DIR=%~2
+if "%CLI_DIR%"=="" set CLI_DIR=%USERPROFILE%\Downloads
+if not exist "%CLI_DIR%" (
+    echo [ERRO] Diretorio nao encontrado: %CLI_DIR%
+    pause
+    if not "%~1"=="" exit /b 1
+    goto menu
+)
+cd /d %PROJECT_ROOT%backend
+echo [CLI] Procurando paginas HTML em: %CLI_DIR%
+%PYTHON% -m ai_converter_cli.cli "%CLI_DIR%"
 pause
+if not "%~1"=="" exit /b %errorlevel%
 goto menu
 
 :install
