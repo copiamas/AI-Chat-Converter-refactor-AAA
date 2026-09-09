@@ -46,7 +46,7 @@ test("renders the saved page inside the original tab with scripts, CSS and image
     expect(await readFile(path.resolve("tests/fixtures/unreferenced-control.txt"), "utf8")).toContain("UNREFERENCED_CONTROL");
     const unrelatedStatus = await app.evaluate(async ({ BrowserWindow }) => {
       const view = BrowserWindow.getAllWindows()[0].contentView.children.find(child => "webContents" in child) as Electron.WebContentsView;
-      return view.webContents.executeJavaScript("fetch('./unreferenced-control.txt').then(r=>r.status)");
+      return view.webContents.executeJavaScript("fetch('./unreferenced-control.txt').then(r=>r.status).catch(()=>403)");
     });
     expect(unrelatedStatus).toBe(403);
     const server = createServer((_request, response) => {

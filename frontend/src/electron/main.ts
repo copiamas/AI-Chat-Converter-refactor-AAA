@@ -129,7 +129,9 @@ async function configurePreviewSession(previewSession: Session) {
   previewSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   previewSession.setPermissionCheckHandler(() => false);
   previewSession.on("will-download", event => event.preventDefault());
-  previewSession.webRequest.onBeforeRequest({ urls: ["http://*/*", "https://*/*", "ws://*/*", "wss://*/*"] }, (_details, callback) => callback({ cancel: true }));
+  previewSession.webRequest.onBeforeRequest({ urls: ["<all_urls>"] }, (details, callback) => {
+    callback(/^(?:http|https|ws|wss):/i.test(details.url) ? { cancel: true } : {});
+  });
   previewSession.webRequest.onBeforeRequest({ urls: ["file://*/*"] }, (_details, callback) => callback({ cancel: true }));
   if (!(await previewSession.protocol.isProtocolHandled(scheme))) await previewSession.protocol.handle(scheme, handlePreviewRequest);
   previewSessionConfigured = true;
@@ -146,6 +148,12 @@ async function handlePreviewRequest(request: Request) {
     if (!contained(entry.root, target)) return new Response("Forbidden", { status: 403 });
     const permitted = entry.allowedFiles.has(pathKey(target)) || entry.allowedRoots.some(root => contained(root, target));
     if (!permitted) return new Response("Forbidden", { status: 403 });
+    if (pathKey(target) === pathKey(entry.sourcePath)) {
+      return new Response(await fs.readFile(target), { headers: {
+        "content-type": "text/html; charset=utf-8",
+        "content-security-policy": "default-src 'self' reader-preview: data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' reader-preview: data:; font-src 'self' reader-preview: data:; media-src 'self' reader-preview: data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'self'"
+      } });
+    }
     return net.fetch(pathToFileURL(target).toString());
   } catch { return new Response("Not found", { status: 404 }); }
 }
