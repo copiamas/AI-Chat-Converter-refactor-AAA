@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from dataclasses import replace
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Protocol
@@ -183,6 +184,12 @@ def _configurar_parse_args() -> argparse.ArgumentParser:
         default="Conversa Exportada via AI Converter CLI",
         help="Título registrado no cabeçalho YAML",
     )
+    parser.add_argument(
+        "--arquivo",
+        type=Path,
+        default=None,
+        help="Caminho direto para um arquivo .html ou .htm",
+    )
     return parser
 
 
@@ -226,6 +233,21 @@ def _executar(argumentos: argparse.Namespace) -> int:
         plataforma=argumentos.plataforma,
         titulo=argumentos.titulo,
     )
+    if argumentos.arquivo is not None:
+        arquivo = argumentos.arquivo.expanduser()
+        if arquivo.suffix.lower() not in SUFIXOS_HTML:
+            console.print("[bold red]❌ Erro:[/bold red] O arquivo deve ter extensão .html ou .htm.")
+            return 1
+        if not arquivo.is_file():
+            console.print(f"[bold red]❌ Erro:[/bold red] Arquivo não encontrado: {arquivo}")
+            return 1
+        opcoes = replace(opcoes, diretorio=arquivo.parent)
+        try:
+            _exibir_resultado(_processar(arquivo, opcoes))
+            return 0
+        except OSError as erro:
+            console.print(f"[bold red]❌ Erro:[/bold red] {_formatar_erro(erro)}")
+            return 1
     if argumentos.auto:
         arquivos = listar_arquivos_html(diretorio)
         if not arquivos:

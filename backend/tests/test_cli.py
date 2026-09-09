@@ -178,6 +178,21 @@ def test_main_indice_converte_arquivo_especifico(
     assert (tmp_path / "b.md").is_file()
 
 
+def test_main_arquivo_converte_caminho_direto(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    arquivo = _criar_arquivo(tmp_path, "selecionado.html")
+    monkeypatch.chdir(tmp_path.parent)
+
+    assert main(["--arquivo", str(arquivo)]) == 0
+    assert (tmp_path / "selecionado.md").is_file()
+
+
+def test_main_arquivo_rejeita_extensao_invalida(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    arquivo = _criar_arquivo(tmp_path, "selecionado.txt")
+    monkeypatch.chdir(tmp_path.parent)
+
+    assert main(["--arquivo", str(arquivo)]) == 1
+
+
 def test_main_indice_invalido_retorna_1(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _criar_arquivo(tmp_path, "a.html")
     monkeypatch.chdir(tmp_path)
