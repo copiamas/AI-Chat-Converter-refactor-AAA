@@ -105,6 +105,7 @@ goto menu
 echo [CLI] AI Chat Converter CLI
 set CLI_FILE=%~2
 if "%CLI_FILE%"=="" set /p CLI_FILE=Informe o caminho do arquivo .html: 
+set "CLI_FILE=%CLI_FILE:"=%"
 if "%CLI_FILE%"=="" (
     echo [ERRO] Nenhum arquivo informado.
     pause

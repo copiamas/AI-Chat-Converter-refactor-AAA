@@ -84,3 +84,6 @@ cd ..\backend && python -m pytest
 ## Contribuição
 
 Use branches curtas e commits convencionais, como `feat:`, `fix:`, `docs:` e `test:`. Antes de abrir um pull request, execute o build do frontend e a suíte Python.
+## Distribuição do Electron
+
+Na pasta `frontend`, execute `npm run dist` para gerar o instalador Windows NSIS em `frontend/dist-release/`. O instalador inclui a interface Electron e o código do backend; o computador de destino precisa ter Python 3.11+ instalado e o pacote do backend disponível (`run.bat install`).

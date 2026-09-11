@@ -2,6 +2,8 @@
   "name": "react-vite-tailwind",
   "private": true,
   "version": "0.0.0",
+  "description": "Leitor local de páginas HTML salvas",
+  "author": "AI Chat Converter",
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
@@ -9,9 +11,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron": "electron .",
-    "electron:build": "npx esbuild src/electron/main.ts --bundle --platform=node --outfile=dist-electron/main.cjs --format=cjs --external:electron && npx esbuild src/electron/preload.ts --bundle --platform=node --outfile=dist-electron/preload.cjs --format=cjs --external:electron"
-    ,"verify:build": "tsc --noEmit && tsc -p src/electron/tsconfig.json --noEmit && vite build && npm run electron:build && node -e \"console.log('READER_BUILD_VERIFIED')\""
-    ,"test:reader": "playwright test && node -e \"console.log('READER_E2E_VERIFIED')\""
+    "electron:build": "npx esbuild src/electron/main.ts --bundle --platform=node --outfile=dist-electron/main.cjs --format=cjs --external:electron && npx esbuild src/electron/preload.ts --bundle --platform=node --outfile=dist-electron/preload.cjs --format=cjs --external:electron",
+    "verify:build": "tsc --noEmit && tsc -p src/electron/tsconfig.json --noEmit && vite build && npm run electron:build && node -e \"console.log('READER_BUILD_VERIFIED')\"",
+    "test:reader": "playwright test && node -e \"console.log('READER_E2E_VERIFIED')\"",
+    "dist": "npm run verify:build && electron-builder --win nsis"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -20,16 +23,25 @@
     "tailwind-merge": "3.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/vite": "4.1.17",
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
     "electron": "^44.0.0",
+    "electron-builder": "^26.15.3",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "7.3.2",
     "vite-plugin-singlefile": "2.3.0"
-    ,"@playwright/test": "^1.55.0"
+  },
+  "build": {
+    "appId": "com.aichatconverter.reader",
+    "productName": "AI Chat Converter",
+    "directories": { "output": "dist-release" },
+    "files": ["dist/**/*", "dist-electron/**/*", "package.json"],
+    "extraResources": [{ "from": "../backend/ai_converter_cli", "to": "backend/ai_converter_cli", "filter": ["!**/__pycache__/**", "!**/*.pyc"] }],
+    "win": { "target": "nsis" }
   }
 }
