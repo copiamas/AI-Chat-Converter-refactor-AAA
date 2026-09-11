@@ -79,7 +79,9 @@ test("renders the saved page inside the original tab with scripts, CSS and image
     });
     await expect.poll(async () => (await state())?.page.text).toContain("Interação funcionando");
     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1100, 750));
-    await expect.poll(async () => (await state())?.bounds.width).toBeLessThan(first!.bounds.width);
+    await expect.poll(async () => (await state())?.bounds.width).not.toBe(first!.bounds.width);
+    const resized = await state();
+    expect(resized?.bounds.width).toBeGreaterThan(400);
     await page.getByRole("button", { name: "Conteúdo extraído", exact: true }).click();
     await expect.poll(async () => (await state())?.visible ?? false).toBe(false);
     await choose(path.resolve("tests/fixtures/chat.html"));

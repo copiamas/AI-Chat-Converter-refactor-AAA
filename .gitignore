@@ -18,6 +18,11 @@ __pycache__/
 output.md
 graphify-out/
 workspace-*/
+work/
+frontend/dist-release/
+.codex/
+.unlazy/
+backend/.coverage
 .DS_Store
 # gitignore
 .gitignore
