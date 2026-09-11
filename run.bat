@@ -91,7 +91,18 @@ set PYTHONIOENCODING=utf-8
 echo [ELECTRON] Abrindo app desktop...
 cd /d %PROJECT_ROOT%frontend
 set ELECTRON_OVERRIDE_DIST_PATH=%PROJECT_ROOT%frontend\node_modules\electron\dist
-npx electron dist-electron/main.cjs
+if not exist "node_modules\electron\dist\electron.exe" (
+    echo [ELECTRON] Binario ausente; baixando runtime do Electron...
+    call %PKG_MANAGER% install --ignore-scripts=false electron@44.0.0 --save-dev
+    if exist "node_modules\electron\install.js" node "node_modules\electron\install.js"
+)
+if not exist "node_modules\electron\dist\electron.exe" (
+    echo [ERRO] Binario do Electron nao foi instalado.
+    echo Execute 'run.bat install' e tente novamente.
+    pause
+    goto menu
+)
+call "node_modules\.bin\electron.cmd" dist-electron/main.cjs
 pause
 goto menu
 
