@@ -32,6 +32,14 @@ if "%~1"=="clean" goto clean
 if "%~1"=="help" goto help
 if "%~1"=="--help" goto help
 if "%~1"=="-h" goto help
+if "%~1"=="1" goto dev
+if "%~1"=="2" goto build
+if "%~1"=="3" goto electron
+if "%~1"=="4" goto cli
+if "%~1"=="5" goto install
+if "%~1"=="6" goto clean
+if "%~1"=="7" goto help
+if "%~1"=="0" goto exit
 if "%~1"=="" goto menu
 
 echo [ERRO] Opcao desconhecida: %~1
@@ -75,12 +83,12 @@ goto menu
 :electron
 echo [ELECTRON] Build do frontend...
 if not exist "frontend/dist/index.html" (
-    cd /d %PROJECT_ROOT%frontend && call %PKG_MANAGER% run build
+    cd /d %PROJECT_ROOT%frontend && call npm run build
     if %errorlevel% neq 0 echo [ERRO] Build falhou & pause & goto menu
 )
 echo [ELECTRON] Compilando main/preload (electron:build)...
 cd /d %PROJECT_ROOT%frontend
-call %PKG_MANAGER% run electron:build
+call npm run electron:build
 if %errorlevel% neq 0 echo [ERRO] Compilacao Electron falhou & pause & goto menu
 
 echo [ELECTRON] Verificando Python backend...
@@ -93,7 +101,7 @@ cd /d %PROJECT_ROOT%frontend
 set ELECTRON_OVERRIDE_DIST_PATH=%PROJECT_ROOT%frontend\node_modules\electron\dist
 if not exist "node_modules\electron\dist\electron.exe" (
     echo [ELECTRON] Binario ausente; baixando runtime do Electron...
-    call %PKG_MANAGER% install --ignore-scripts=false electron@44.0.0 --save-dev
+    call npm install --ignore-scripts=false electron@44.0.0 --save-dev
     if exist "node_modules\electron\install.js" node "node_modules\electron\install.js"
 )
 if not exist "node_modules\electron\dist\electron.exe" (
