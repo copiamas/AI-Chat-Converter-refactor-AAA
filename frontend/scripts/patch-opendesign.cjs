@@ -7,8 +7,7 @@
 //     the "original page" tab. The upstream prepare() is destructive: it
 //     strips <iframe>, <link rel=stylesheet>, href, src, srcset, every form
 //     attribute, and finally injects a CSP `default-src 'none'` into <head>.
-//     The result is a half-destroyed document that displays as a blank or
-//     nearly blank iframe inside the Electron renderer.
+//     The Electron preview then blocks the page.
 //
 // What this patch does:
 //   1. Replaces prepare()'s sanitizer with a minimal XSS-only one: drop
@@ -16,12 +15,24 @@
 //      <link rel=stylesheet>, href, src, srcset, <style>, inline images etc.
 //      are preserved so the document renders.
 //   2. Publishes the currently-open document to `window.__activeReaderDoc`
-//      so the bridge script below can find it (active is closed over inside
-//      the upstream IIFE and not visible from outside).
+//      so the bridge script below can find it.
 //   3. Appends a small bridge script that listens for clicks on the
 //      "original" / "content" tabs and forwards them to the Electron
 //      `readerAPI.previewShow` IPC when running inside Electron. When
 //      `readerAPI` is missing the tab keeps the original iframe srcdoc.
+//
+// Bridge notes:
+//   - Our capture-phase click handler runs BEFORE OpenDesign's own onclick
+//     handler (`$('originalTab').onclick=...`). When our handler runs,
+//     `originalPanel.hidden` is still true, so getBoundingClientRect() would
+//     return all zeros. The fix is to defer bounds lookup + preview show to
+//     setTimeout(0) — by then the tab switch has happened and the panel is
+//     laid out.
+//   - `getBounds()` falls back to document.body when the panel is hidden,
+//     so a stale preview can still be repositioned even before the user
+//     switches tabs.
+//   - We hide the in-page iframe via CSS instead of clearing its srcdoc,
+//     so it acts as a free fallback if `previewShow` fails.
 const fs = require('fs');
 const path = require('path');
 
@@ -80,32 +91,36 @@ if (html.indexOf('readerAPI.previewShow') !== -1) {
     '    var frame=document.getElementById("originalFrame");',
     '    var originalPanel=document.getElementById("originalPanel");',
     '    function getBounds(){',
-    '      if(!originalPanel)return null;',
-    '      var r=originalPanel.getBoundingClientRect();',
+    '      var el=(originalPanel&&!originalPanel.hidden)?originalPanel:document.body;',
+    '      var r=el.getBoundingClientRect();',
     '      if(r.width<50||r.height<50)return null;',
     '      return {x:Math.round(r.left),y:Math.round(r.top),width:Math.round(r.width),height:Math.round(r.height)};',
     '    }',
     '    function showOriginal(){',
     '      var doc=window.__activeReaderDoc;',
-    '      if(!doc||!frame)return;',
+    '      if(!doc)return;',
     '      if(api&&doc.id){',
-    '        frame.removeAttribute("srcdoc");',
-    '        var b=getBounds();',
-    '        if(b)api.previewBounds(b).catch(function(){});',
-    '        api.previewShow(doc.id).catch(function(){});',
-    '      }else{',
+    '        if(frame)frame.style.visibility="hidden";',
+    '        setTimeout(function(){',
+    '          var b=getBounds();',
+    '          if(b){api.previewBounds(b).catch(function(){});}',
+    '          api.previewShow(doc.id).catch(function(){});',
+    '        },0);',
+    '      }else if(frame){',
+    '        frame.style.visibility="visible";',
     '        frame.srcdoc=doc.original;',
     '      }',
     '    }',
     '    function hideOriginal(){',
-    '      if(api)try{api.previewHide();}catch(e){}',
+    '      if(frame)frame.style.visibility="visible";',
+    '      if(api){try{api.previewHide();}catch(e){}}',
     '    }',
     '    function reposition(){',
     '      if(!api)return;',
     '      var sel=document.querySelector(\'[role="tab"][aria-selected="true"]\');',
     '      if(sel&&sel.id==="originalTab"){',
     '        var b=getBounds();',
-    '        if(b)api.previewBounds(b).catch(function(){});',
+    '        if(b){api.previewBounds(b).catch(function(){});}',
     '      }',
     '    }',
     '    document.querySelectorAll(\'[role="tab"]\').forEach(function(tab){',
