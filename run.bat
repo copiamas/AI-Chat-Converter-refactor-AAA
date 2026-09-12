@@ -98,6 +98,13 @@ if exist "%OPENDESIGN_HTML%" (
     pause
     goto menu
 )
+echo [OPEN DESIGN] Aplicando patch para aba "Pagina original"...
+node frontend\scripts\patch-opendesign.cjs "frontend\dist\index.html"
+if %errorlevel% neq 0 (
+    echo [ERRO] Falha ao aplicar patch do OpenDesign.
+    pause
+    goto menu
+)
 echo [ELECTRON] Build do frontend...
 if not exist "frontend/dist/index.html" (
     cd /d %PROJECT_ROOT%frontend && call npm run build
@@ -174,6 +181,14 @@ goto menu
 echo [OPEN DESIGN] Sincronizando UI para frontend\dist\index.html...
 if exist "%OPENDESIGN_HTML%" (
     copy /y "%OPENDESIGN_HTML%" "frontend\dist\index.html" >nul
+    echo [OPEN DESIGN] UI copiada.
+    echo [OPEN DESIGN] Aplicando patch para aba "Pagina original"...
+    node frontend\scripts\patch-opendesign.cjs "frontend\dist\index.html"
+    if %errorlevel% neq 0 (
+        echo [ERRO] Falha ao aplicar patch.
+        pause
+        goto menu
+    )
     echo [OK] UI sincronizada com sucesso.
 ) else (
     echo [ERRO] Artifacto do OpenDesign nao encontrado.
