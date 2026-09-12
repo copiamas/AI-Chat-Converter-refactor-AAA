@@ -3,9 +3,12 @@ setlocal enabledelayedexpansion
 :: ============================================================
 :: AI Chat Converter - Electron Desktop App
 :: ============================================================
-:: Uso: run.bat [dev|build|electron|cli|python-test|install|clean|help]
+:: Uso: run.bat [dev|build|electron|cli|python-test|install|clean|opendesign|sync|help]
 
 title AI Chat Converter - Electron
+
+:: OpenDesign artifact path
+set OPENDESIGN_HTML=%USERPROFILE%\AppData\Roaming\Open Design\namespaces\release-stable-win\data\projects\ai-chat-converter-reader-ui\ai-chat-converter.html
 
 :: Verificar Node
 where node >nul 2>&1
@@ -29,6 +32,8 @@ if "%~1"=="cli" goto cli
 if "%~1"=="python-test" goto python_test
 if "%~1"=="install" goto install
 if "%~1"=="clean" goto clean
+if "%~1"=="opendesign" goto opendesign
+if "%~1"=="sync" goto sync
 if "%~1"=="help" goto help
 if "%~1"=="--help" goto help
 if "%~1"=="-h" goto help
@@ -51,7 +56,7 @@ echo ================================================================
 echo  AI Chat Converter / Electron - React UI + Python Engine
 echo ================================================================
 echo [1] Dev Server  [2] Build  [3] Electron  [4] Cli
-echo [5] Install    [6] Clean  [7] Help     [0] Sair
+echo [5] Install    [6] Clean  [7] Help     [8] Sync OpenDesign [0] Sair
 echo ================================================================
 set /p c=Opcao:
 if "%c%"=="1" goto dev
@@ -61,6 +66,7 @@ if "%c%"=="4" goto cli
 if "%c%"=="5" goto install
 if "%c%"=="6" goto clean
 if "%c%"=="7" goto help
+if "%c%"=="8" goto sync
 if "%c%"=="0" goto exit
 
 echo [ERRO] Opcao invalida!
@@ -81,6 +87,17 @@ pause
 goto menu
 
 :electron
+echo [OPEN DESIGN] Sincronizando UI do OpenDesign...
+if exist "%OPENDESIGN_HTML%" (
+    copy /y "%OPENDESIGN_HTML%" "frontend\dist\index.html" >nul
+    echo [OPEN DESIGN] UI copiada para frontend\dist\index.html
+) else (
+    echo [AVISO] Artifacto do OpenDesign nao encontrado em:
+    echo  %OPENDESIGN_HTML%
+    echo  Abra o projeto "AI Chat Converter Reader UI" no OpenDesign e tente novamente.
+    pause
+    goto menu
+)
 echo [ELECTRON] Build do frontend...
 if not exist "frontend/dist/index.html" (
     cd /d %PROJECT_ROOT%frontend && call npm run build
@@ -153,17 +170,38 @@ echo [CLEAN] node_modules removido.
 pause
 goto menu
 
+:sync
+echo [OPEN DESIGN] Sincronizando UI para frontend\dist\index.html...
+if exist "%OPENDESIGN_HTML%" (
+    copy /y "%OPENDESIGN_HTML%" "frontend\dist\index.html" >nul
+    echo [OK] UI sincronizada com sucesso.
+) else (
+    echo [ERRO] Artifacto do OpenDesign nao encontrado.
+    echo  Verifique se o projeto esta aberto no OpenDesign:
+    echo  AI Chat Converter Reader UI
+)
+pause
+goto menu
+
+:opendesign
+start "" "%USERPROFILE%\AppData\Roaming\Open Design\Open Design.exe"
+echo [OPEN DESIGN] Abrindo OpenDesign...
+pause
+goto menu
+
 :help
 cls
 echo  AI Chat Converter / Electron
-echo  Uso: run.bat [dev^|build^|electron^|cli^|python-test^|install^|clean^|help]
+echo  Uso: run.bat [dev^|build^|electron^|cli^|python-test^|install^|clean^|opendesign^|sync^|help]
 echo  dev         - Servidor de desenvolvimento
 echo  build       - Build de producao
-echo  electron     - App desktop (Electron + Python)
+echo  electron     - App desktop (Electron + OpenDesign UI)
 echo  cli          - Abre a CLI interativa de conversao
 echo  python-test - Testa CLI Python
 echo  install      - Instala dependencias
 echo  clean       - Limpa node_modules
+echo  opendesign   - Abre o OpenDesign
+echo  sync        - Sincroniza a UI do OpenDesign para dist/
 echo  help        - Mostra esta ajuda
 pause
 if not "%~1"=="" exit /b 0
