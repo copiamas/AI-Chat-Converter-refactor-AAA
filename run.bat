@@ -87,9 +87,17 @@ pause
 goto menu
 
 :electron
+cd /d "%PROJECT_ROOT%"
+set "DIST_HTML=%PROJECT_ROOT%frontend\dist\index.html"
+set "PATCH_SCRIPT=%PROJECT_ROOT%frontend\scripts\patch-opendesign.cjs"
 echo [OPEN DESIGN] Sincronizando UI do OpenDesign...
 if exist "%OPENDESIGN_HTML%" (
-    copy /y "%OPENDESIGN_HTML%" "frontend\dist\index.html" >nul
+    copy /y "%OPENDESIGN_HTML%" "%DIST_HTML%" >nul
+    if errorlevel 1 (
+        echo [ERRO] Nao foi possivel copiar o artefato do OpenDesign.
+        pause
+        goto menu
+    )
     echo [OPEN DESIGN] UI copiada para frontend\dist\index.html
 ) else (
     echo [AVISO] Artifacto do OpenDesign nao encontrado em:
@@ -99,14 +107,14 @@ if exist "%OPENDESIGN_HTML%" (
     goto menu
 )
 echo [OPEN DESIGN] Aplicando patch para aba "Pagina original"...
-node frontend\scripts\patch-opendesign.cjs "frontend\dist\index.html"
-if %errorlevel% neq 0 (
+node "%PATCH_SCRIPT%" "%DIST_HTML%"
+if errorlevel 1 (
     echo [ERRO] Falha ao aplicar patch do OpenDesign.
     pause
     goto menu
 )
 echo [ELECTRON] Build do frontend...
-if not exist "frontend/dist/index.html" (
+if not exist "%DIST_HTML%" (
     cd /d %PROJECT_ROOT%frontend && call npm run build
     if %errorlevel% neq 0 echo [ERRO] Build falhou & pause & goto menu
 )
@@ -178,13 +186,21 @@ pause
 goto menu
 
 :sync
+cd /d "%PROJECT_ROOT%"
+set "DIST_HTML=%PROJECT_ROOT%frontend\dist\index.html"
+set "PATCH_SCRIPT=%PROJECT_ROOT%frontend\scripts\patch-opendesign.cjs"
 echo [OPEN DESIGN] Sincronizando UI para frontend\dist\index.html...
 if exist "%OPENDESIGN_HTML%" (
-    copy /y "%OPENDESIGN_HTML%" "frontend\dist\index.html" >nul
+    copy /y "%OPENDESIGN_HTML%" "%DIST_HTML%" >nul
+    if errorlevel 1 (
+        echo [ERRO] Nao foi possivel copiar o artefato do OpenDesign.
+        pause
+        goto menu
+    )
     echo [OPEN DESIGN] UI copiada.
     echo [OPEN DESIGN] Aplicando patch para aba "Pagina original"...
-    node frontend\scripts\patch-opendesign.cjs "frontend\dist\index.html"
-    if %errorlevel% neq 0 (
+    node "%PATCH_SCRIPT%" "%DIST_HTML%"
+    if errorlevel 1 (
         echo [ERRO] Falha ao aplicar patch.
         pause
         goto menu

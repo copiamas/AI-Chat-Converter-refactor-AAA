@@ -54,7 +54,17 @@ O menu também oferece `build`, `python-test`, `clean` e `help`.
 
 ## Uso da interface
 
-No Studio, arraste um arquivo `.html` salvo pelo navegador ou escolha um exemplo. Ajuste a plataforma, localidade, front matter, timestamp e filtro de ruído; depois revise o preview, os turnos e os diagnósticos antes de copiar ou baixar o Markdown.
+No leitor Electron, escolha ou arraste um arquivo `.html` salvo pelo navegador. A aba **Conteúdo extraído** organiza o texto e diferencia visualmente mensagens do usuário (verde) e respostas da IA (azul). A aba **Página original** abre o HTML salvo em uma visualização isolada, preservando recursos locais permitidos.
+
+![Tela do AI Chat Converter](frontend/assets/frontend-preview.png)
+
+Para iniciar no Windows:
+
+```bat
+run.bat electron
+```
+
+O launcher sincroniza a interface do OpenDesign, aplica o patch do preview original e abre o Electron. Ele pode ser chamado a partir de qualquer pasta do projeto.
 
 ## CLI Python
 
@@ -72,6 +82,7 @@ Consulte [backend/README.md](backend/README.md) para as opções disponíveis e 
 ```bat
 cd frontend && npm run build
 cd ..\backend && python -m pytest
+npx playwright test frontend/tests/e2e/opendesign-preview.spec.ts
 ```
 
 ## Segurança e privacidade
