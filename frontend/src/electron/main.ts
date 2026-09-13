@@ -65,12 +65,22 @@ async function resourceAccess(html: string, sourcePath: string, root: string) {
   }
   return { allowedFiles, allowedRoots };
 }
-function validId(value: unknown): value is string { return typeof value === "string" && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value); }
-function entryFor(value: unknown) {
+function validId(value: unknown): value is string {
+  // Aceita tanto UUIDs (8-4-4-4-12) quanto o digest de 20 chars gerado pelo Python (reader_cli.py)
+  return typeof value === "string" && (
+    /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value) ||
+    /^[a-f0-9]{20}$/i.test(value)
+  );
+}
+function entryFor(value: unknown): Entry {
   if (!validId(value)) throw new Error("INVALID_ID|Documento inválido.");
   const entry = documents.get(value);
   if (!entry) throw new Error("EXPIRED_DOCUMENT|Importe novamente.");
   return entry;
+}
+function tryEntry(value: unknown): Entry | null {
+  if (!validId(value)) return null;
+  return documents.get(value) ?? null;
 }
 function python(args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -140,7 +150,8 @@ async function handlePreviewRequest(request: Request) {
   try {
     const url = new URL(request.url);
     if (url.protocol !== `${scheme}:` || url.hostname !== activePreviewDocument) return new Response("Forbidden", { status: 403 });
-    const entry = entryFor(url.hostname);
+    const entry = tryEntry(url.hostname);
+    if (!entry) return new Response("Not found", { status: 404 });
     const relative = decodeURIComponent(url.pathname.replace(/^\/+/, ""));
     const unresolved = path.resolve(entry.root, relative);
     if (!contained(entry.root, unresolved)) return new Response("Forbidden", { status: 403 });
@@ -158,8 +169,13 @@ async function handlePreviewRequest(request: Request) {
   } catch { return new Response("Not found", { status: 404 }); }
 }
 async function showPreview(id: string) {
-  const entry = entryFor(id);
+  const entry = tryEntry(id);
   const generation = ++previewGeneration;
+  if (!entry) {
+    activePreviewDocument = "";
+    if (previewView) previewView.setVisible(false);
+    return { expired: true, limited: false, reasons: ["Documento não está mais na memória. Reimporte o arquivo."] };
+  }
   activePreviewDocument = id;
   if (!mainWindow) throw new Error("WINDOW_CLOSED|A janela principal foi fechada.");
   if (!previewView) {

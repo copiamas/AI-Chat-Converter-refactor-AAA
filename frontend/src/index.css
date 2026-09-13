@@ -211,8 +211,16 @@ aside dd { color: #d1d8e3; }
 .results button:hover { background: rgb(101 224 187 / .07); }
 article { max-width: 900px; padding-top: 44px; }
 article p { color: #d1d8e3; }
-.turn { padding-left: 24px; }
-.turn div { color: #d9e0ea; }
+.turn { margin: 0 0 28px; padding: 0; overflow: hidden; border: 1px solid rgb(255 255 255 / .1); border-radius: 14px; background: rgb(255 255 255 / .025); box-shadow: 0 12px 28px rgb(0 0 0 / .12); }
+.turnRoleBar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 11px 16px; color: #06120f; font-size: 12px; letter-spacing: .02em; }
+.turnRoleBar strong { font-size: 13px; }
+.turnRoleBar span { font-weight: 650; opacity: .82; }
+.turnMessage { padding: 18px 20px 20px; color: #d9e0ea; white-space: pre-wrap; line-height: 1.75; }
+.turn.user { border-color: rgb(101 224 187 / .3); }
+.turn.user .turnRoleBar { background: linear-gradient(135deg, #7de7c2, #4fcda5); }
+.turn.ai { border-color: rgb(91 167 255 / .34); }
+.turn.ai .turnRoleBar { color: #f3f8ff; background: linear-gradient(135deg, #4f9cf6, #3672d5); }
+.turn.ai .turnMessage { background: rgb(47 105 190 / .08); }
 pre { border-radius: 12px; background: #080c13; border-color: var(--line); }
 .original { padding: 22px 26px 26px; }
 .fidelity { padding: 12px 15px; border: 1px solid rgb(205 164 74 / .18); border-radius: 10px; background: rgb(53 42 15 / .42); color: #ddc98f; }
